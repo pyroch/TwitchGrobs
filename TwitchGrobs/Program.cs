@@ -32,13 +32,22 @@ namespace TwitchGrobs
 
         static void Main(string[] args)
         {
+            Console.WriteLine("Google Chrome is going to be closed. Make sure you okay with that, otherwise press 'N' (program will be closed)");
+
+            ConsoleKeyInfo cki = Console.ReadKey();
+
+            if (cki.Key.ToString().ToLower() == "n")
+            {
+                return;
+            }
+
             foreach (var process in System.Diagnostics.Process.GetProcessesByName("chrome"))
                 process.Kill();
             var options = new ChromeOptions();
             options.AddArgument("user-data-dir=C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Google\\Chrome\\User Data");
             options.AddArgument("--log-level=3");
-            //ChromeDriverService service = ChromeDriverService.CreateDefaultService();
-            //service.SuppressInitialDiagnosticInformation = true;
+            //ChromeDriverService service = ChromeDriverService.CreateDefaultService(); // might use later
+            //service.SuppressInitialDiagnosticInformation = true; // might use later
 
             using (IWebDriver driver = new ChromeDriver(options))
             {
@@ -58,9 +67,9 @@ namespace TwitchGrobs
                         {
                             driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button")).Click(); // Clicking on profile button to get % of drop
                             System.Threading.Thread.Sleep(1000);
-                            var percent = driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent");
+                            var percent = driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
                             var perName = percent.Substring(percent.LastIndexOf('/') + 1);
-                            if (perName != onlineList[currentStreamer].ToLowerInvariant())
+                            if (perName != onlineList[currentStreamer].ToLowerInvariant()) // checks if streamer page is the same as progressing one
                             {
                                 Console.WriteLine("Watching the wrong streamer. Switching...");
                                 currentStreamer++;
@@ -71,10 +80,10 @@ namespace TwitchGrobs
 
                                 Stopwatch sw = new Stopwatch();
                                 sw.Start();
-                                while (sw.Elapsed < TimeSpan.FromMinutes(15))
+                                while (sw.Elapsed < TimeSpan.FromMinutes(15)) // while cycle for 15 munutes, after that we're getting the list of streamers again. Also shows the % of drop in real time and if its 100% breaks cycle and claim the drop
                                 {
                                     System.Threading.Thread.Sleep(10); // reducing CPU use
-                                    Console.Write("\rPercentage of drop {0}    " , driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent").GetUntilOrEmpty());
+                                    Console.Write("\rPercentage of drop: {0}    " , driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent").GetUntilOrEmpty());
                                     if (percent.GetUntilOrEmpty() == "100")
                                     {
                                         Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
@@ -84,7 +93,7 @@ namespace TwitchGrobs
                                     }
                                 }
 
-                                StreamerCheck(driver);
+                                StreamerCheck(driver); // checking streamers after 15 minutes, incase the one we were watching went off.
                             }
                         }
                         catch
@@ -141,6 +150,7 @@ namespace TwitchGrobs
             Console.Clear();
             foreach (var a in onlineList)
                 Console.WriteLine(a + " is live.");
+            Console.WriteLine();
         }
     }
 }
