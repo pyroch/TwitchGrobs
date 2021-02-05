@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -30,9 +31,13 @@ namespace TwitchGrobs
         static List<string> onlineList = new List<string>();
         static List<int> exclusion = new List<int>();
 
+        static bool customList = false;
+
         static void Main()
         {
             Console.WriteLine("Google Chrome is going to be closed. Make sure you okay with that, otherwise press 'N' (program will be closed)");
+
+            //CustomList();
 
             ConsoleKeyInfo cki = Console.ReadKey();
 
@@ -54,8 +59,11 @@ namespace TwitchGrobs
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
                 int currentStreamer = 0;
 
-                StreamerCheck(driver);
-                Exclusion();
+                if (!CustomList())
+                {
+                    StreamerCheck(driver);
+                    Exclusion();
+                }
 
                 while (true)
                 {
@@ -95,7 +103,8 @@ namespace TwitchGrobs
                                     }
                                 }
 
-                                StreamerCheck(driver); // checking streamers after 15 minutes, incase the one we were watching went off.
+                                if(!CustomList())
+                                    StreamerCheck(driver); // checking streamers after 15 minutes, incase the one we were watching went off.
                             }
                         }
                         catch
@@ -180,6 +189,30 @@ namespace TwitchGrobs
                 onlineList.RemoveAt(number);
             }
             Console.Clear();
+        }
+
+        static bool CustomList()
+        {
+            if(File.Exists(@".\streamers.txt"))
+            {
+                Console.WriteLine("Custom streamers list found.");
+                try
+                {
+                    var logFile = File.ReadAllLines(@".\streamers.txt");
+                    for (int i = 0; i < logFile.Length; i++)
+                    {
+                        logFile[i] = logFile[i].Remove(0, 22);
+                    }
+                    onlineList = new List<string>(logFile);
+                    return true;
+                }
+                catch
+                {
+                    Console.WriteLine("The list has wrong format.");
+                    return false;
+                }
+            }
+            return false;
         }
     }
 }
