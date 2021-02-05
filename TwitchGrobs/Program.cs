@@ -60,7 +60,8 @@ namespace TwitchGrobs
 
                 while (true)
                 {
-                    if (currentStreamer < currentOnline)
+                    //if (currentStreamer < currentOnline)
+                    if (currentStreamer < onlineList.Count)
                     {
                         driver.Navigate().GoToUrl("https://twitch.tv/" + onlineList[currentStreamer]);
                         
@@ -142,7 +143,7 @@ namespace TwitchGrobs
                     if (status == "Live")
                     {
                         onlineList.Add(streamerName.GetAttribute("textContent"));
-                        currentOnline++;
+                        //currentOnline++;
                     }
                 }
             }
@@ -169,7 +170,7 @@ namespace TwitchGrobs
             while (true)
                 try
                 {
-                    Console.WriteLine("Write down the numbers of streamers you want to exclude, the press Enter. (For example: '0, 1, 3'");
+                    Console.WriteLine("Write down the numbers of streamers you want to exclude, the press Enter. (For example: '0, 1, 3')");
                     string kb = Console.ReadLine();
                     exclusion = kb.Split(',').Select(Int32.Parse).ToList();
                     break;
@@ -178,11 +179,11 @@ namespace TwitchGrobs
                 {
                     Console.WriteLine("Incorrect input!");
                 }
-            Console.WriteLine("Exclusion list: ");
             foreach (var number in exclusion.OrderByDescending(v => v))
             {
                 onlineList.RemoveAt(number);
             }
+            Console.Clear();
 
             //foreach (var chel in onlineList)
             //    Console.WriteLine(chel);
