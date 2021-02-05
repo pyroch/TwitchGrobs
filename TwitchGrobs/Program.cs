@@ -29,7 +29,6 @@ namespace TwitchGrobs
     {
         static List<string> onlineList = new List<string>();
         static List<int> exclusion = new List<int>();
-        static int currentOnline = 0;
 
         static void Main()
         {
@@ -60,7 +59,6 @@ namespace TwitchGrobs
 
                 while (true)
                 {
-                    //if (currentStreamer < currentOnline)
                     if (currentStreamer < onlineList.Count)
                     {
                         driver.Navigate().GoToUrl("https://twitch.tv/" + onlineList[currentStreamer]);
@@ -79,6 +77,7 @@ namespace TwitchGrobs
                             }
                             else
                             {
+                                Console.Clear();
                                 Console.WriteLine("Currently watching " + onlineList[currentStreamer]);
 
                                 Stopwatch sw = new Stopwatch();
@@ -126,7 +125,6 @@ namespace TwitchGrobs
         static void StreamerCheck(IWebDriver driver)
         {
             driver.Navigate().GoToUrl("https://twitch.facepunch.com/");
-            currentOnline = 0;
             onlineList.Clear();
             System.Threading.Thread.Sleep(5000);
             for (int x = 1; x <= 3; x++)
@@ -143,7 +141,6 @@ namespace TwitchGrobs
                     if (status == "Live")
                     {
                         onlineList.Add(streamerName.GetAttribute("textContent"));
-                        //currentOnline++;
                     }
                 }
             }
@@ -161,7 +158,6 @@ namespace TwitchGrobs
 
         static void Exclusion()
         {
-            //excluding
             Console.Clear();
             for (int i = 0; i < onlineList.Count; i++)
             {
@@ -184,10 +180,6 @@ namespace TwitchGrobs
                 onlineList.RemoveAt(number);
             }
             Console.Clear();
-
-            //foreach (var chel in onlineList)
-            //    Console.WriteLine(chel);
-            //excluding end
         }
     }
 }
