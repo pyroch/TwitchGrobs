@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -51,30 +52,44 @@ namespace TwitchGrobs
                     if (currentStreamer < currentOnline)
                     {
                         driver.Navigate().GoToUrl("https://twitch.tv/" + onlineList[currentStreamer]);
+                        
                         System.Threading.Thread.Sleep(5000);
                         try
                         {
                             driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button")).Click(); // Clicking on profile button to get % of drop
-                            //button.Click();
                             System.Threading.Thread.Sleep(1000);
                             var percent = driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent");
-                            Console.WriteLine("Percentage of drop: " + percent.GetUntilOrEmpty());
-
-                            System.Threading.Thread.Sleep(900000); // Timer between checks streamers that live and how much percent is done.
-                            if (percent == "100")
+                            var perName = percent.Substring(percent.LastIndexOf('/') + 1);
+                            if (perName != onlineList[currentStreamer].ToLowerInvariant())
                             {
-                                Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
-                                ClaimDrop(driver);
+                                Console.WriteLine("Watching the wrong streamer. Switching...");
                                 currentStreamer++;
                             }
                             else
                             {
+                                Console.WriteLine("Currently watching " + onlineList[currentStreamer]);
+
+                                Stopwatch sw = new Stopwatch();
+                                sw.Start();
+                                while (sw.Elapsed < TimeSpan.FromMinutes(15))
+                                {
+                                    System.Threading.Thread.Sleep(10); // reducing CPU use
+                                    Console.Write("\rPercentage of drop {0}    " , driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent").GetUntilOrEmpty());
+                                    if (percent.GetUntilOrEmpty() == "100")
+                                    {
+                                        Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
+                                        ClaimDrop(driver);
+                                        currentStreamer++;
+                                        break;
+                                    }
+                                }
+
                                 StreamerCheck(driver);
                             }
                         }
                         catch
                         {
-                            Console.WriteLine("Couldnt find the button or something wrong. Switching streamer and waiting 1 minute.");
+                            Console.WriteLine("No drops progression... Switching streamer in a minute.");
                             currentStreamer++;
                             System.Threading.Thread.Sleep(60000);
                         }
@@ -83,6 +98,7 @@ namespace TwitchGrobs
                     {
                         currentStreamer = 0;
                     }
+                    System.Threading.Thread.Sleep(10); // Less CPU usage
                 }
             }
         }
@@ -98,6 +114,7 @@ namespace TwitchGrobs
         static void StreamerCheck(IWebDriver driver)
         {
             driver.Navigate().GoToUrl("https://twitch.facepunch.com/");
+            currentOnline = 0;
             onlineList.Clear();
             System.Threading.Thread.Sleep(5000);
             for (int x = 1; x <= 3; x++)
