@@ -31,6 +31,9 @@ namespace TwitchGrobs
 
         static void Main(string[] args)
         {
+            foreach (var process in System.Diagnostics.Process.GetProcessesByName("chrome"))
+                process.Kill();
+
             var options = new ChromeOptions();
 
             options.AddArgument("user-data-dir=C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Google\\Chrome\\User Data");
@@ -90,11 +93,7 @@ namespace TwitchGrobs
             driver.Navigate().GoToUrl("https://www.twitch.tv/drops/inventory");
             System.Threading.Thread.Sleep(5000);
 
-            //var claimButton = driver.FindElement(By.LinkText("Claim Now"));
-            //driver.FindElement(By.XPath("//button[contains(text(), 'Claim')]")).Click();
             driver.FindElement(By.XPath("//button[@data-test-selector ='DropsCampaignInProgressRewardPresentation-claim-button']")).Click();
-
-            //claimButton.Click();
         }
 
         static void StreamerCheck(IWebDriver driver)
@@ -126,7 +125,7 @@ namespace TwitchGrobs
                 }
             }
             foreach (var a in onlineList)
-                Console.WriteLine("Live: " + a);
+                Console.WriteLine(a + " is live.");
         }
     }
 }
