@@ -28,9 +28,10 @@ namespace TwitchGrobs
     class Program
     {
         static List<string> onlineList = new List<string>();
+        static List<int> exclusion = new List<int>();
         static int currentOnline = 0;
 
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("Google Chrome is going to be closed. Make sure you okay with that, otherwise press 'N' (program will be closed)");
 
@@ -55,6 +56,7 @@ namespace TwitchGrobs
                 int currentStreamer = 0;
 
                 StreamerCheck(driver);
+                Exclusion();
 
                 while (true)
                 {
@@ -133,9 +135,6 @@ namespace TwitchGrobs
                     string streamerHeader = $"/html/body/div[1]/div[2]/div[{y}]/a[{x}]/div[1]";
                     var streamerName = driver.FindElement(By.XPath(streamerHeader)).FindElement(By.ClassName("drop-item__header-streamer")).FindElement(By.ClassName("username"));
 
-                    //a = a.FindElement(By.ClassName("drop-item__header-streamer"));
-                    //a = a.FindElement(By.ClassName("username"));
-
                     string statusHeader = $"/html/body/div[1]/div[2]/div[{y}]/a[{x}]/div[1]";
                     var status = driver.FindElement(By.XPath(statusHeader)).FindElement(By.ClassName("drop-item__header-status")).GetAttribute("textContent");
                     status = string.Join("", status.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
@@ -147,10 +146,47 @@ namespace TwitchGrobs
                     }
                 }
             }
+
+            foreach (var number in exclusion.OrderByDescending(v => v))
+            {
+                onlineList.RemoveAt(number);
+            }
+
             Console.Clear();
             foreach (var a in onlineList)
                 Console.WriteLine(a + " is live.");
             Console.WriteLine();
+        }
+
+        static void Exclusion()
+        {
+            //excluding
+            Console.Clear();
+            for (int i = 0; i < onlineList.Count; i++)
+            {
+                Console.WriteLine("(" + i + ") " + onlineList[i]);
+            }
+            while (true)
+                try
+                {
+                    Console.WriteLine("Write down the numbers of streamers you want to exclude, the press Enter. (For example: '0, 1, 3'");
+                    string kb = Console.ReadLine();
+                    exclusion = kb.Split(',').Select(Int32.Parse).ToList();
+                    break;
+                }
+                catch
+                {
+                    Console.WriteLine("Incorrect input!");
+                }
+            Console.WriteLine("Exclusion list: ");
+            foreach (var number in exclusion.OrderByDescending(v => v))
+            {
+                onlineList.RemoveAt(number);
+            }
+
+            //foreach (var chel in onlineList)
+            //    Console.WriteLine(chel);
+            //excluding end
         }
     }
 }
