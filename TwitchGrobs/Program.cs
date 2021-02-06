@@ -62,6 +62,10 @@ namespace TwitchGrobs
                     StreamerCheck(driver);
                     Exclusion();
                 }
+                else
+                {
+                    CustomListChecks(driver);
+                }
 
                 while (true)
                 {
@@ -86,8 +90,8 @@ namespace TwitchGrobs
                             var perName = percent.Substring(percent.LastIndexOf('/') + 1);
                             if (perName != onlineList[currentStreamer].ToLowerInvariant()) // checks if streamer page is the same as progressing one
                             {
-                                Console.WriteLine("Watching the wrong streamer. Switching...");
-                                currentStreamer++;
+                                Console.WriteLine("Watching the wrong streamer. Switching... (If you were watching streamer not from list it might take some time for twitch to index)");
+                                currentStreamer++; // might change that to switching to the right streamer so program dont have to go through all streamers
                             }
                             else
                             {
@@ -227,6 +231,32 @@ namespace TwitchGrobs
                 }
             }
             return false;
+        }
+
+        static void CustomListChecks(IWebDriver driver)
+        {
+            string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/a/div/div/div/div[2]/div/div/div/p";
+
+            foreach (var guy in onlineList)
+            {
+                driver.Navigate().GoToUrl("https://twitch.tv/" + guy);
+                System.Threading.Thread.Sleep(5000);
+                try
+                {
+
+                    var status = driver.FindElement(By.XPath(livePath));
+                    if (status.Displayed)
+                    {
+                        Console.WriteLine(guy + " is Online!");
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine(guy + " is Offline.");
+                    excludingList.Add(guy);
+                }
+            }
+            onlineList.RemoveAll(item => excludingList.Contains(item)); // removing all items from main list that contained in excludingList
         }
     }
 }
