@@ -190,16 +190,19 @@ namespace TwitchGrobs
         {
             if(File.Exists(@".\streamers.txt"))
             {
-                Console.Clear();
-                Console.WriteLine("Custom streamers list found.");
                 try
                 {
-                    var logFile = File.ReadAllLines(@".\streamers.txt");
-                    for (int i = 0; i < logFile.Length; i++)
+                    if (onlineList.Count == 0)
                     {
-                        logFile[i] = logFile[i].Remove(0, 22);
+                        Console.Clear();
+                        Console.WriteLine("Custom streamers list found.");
+                        var logFile = File.ReadAllLines(@".\streamers.txt");
+                        for (int i = 0; i < logFile.Length; i++)
+                        {
+                            logFile[i] = logFile[i].Remove(0, 22);
+                        }
+                        onlineList = new List<string>(logFile);
                     }
-                    onlineList = new List<string>(logFile);
                     return true;
                 }
                 catch
