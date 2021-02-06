@@ -75,6 +75,8 @@ namespace TwitchGrobs
                         System.Threading.Thread.Sleep(900000);
                         if (!CustomList())
                             StreamerCheck(driver);
+                        else
+                            CustomListChecks(driver);
                     }
 
                     if (currentStreamer < onlineList.Count)
