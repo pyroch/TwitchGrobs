@@ -109,14 +109,16 @@ namespace TwitchGrobs
                                     Console.Write("\rPercentage of drop: {0}    " , percent);
                                     if (percent == "100")
                                     {
+                                        Console.WriteLine();
                                         Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
                                         ClaimDrop(driver);
                                         currentStreamer++;
                                         break;
                                     }
                                 }
+                                Console.WriteLine();
 
-                                if(!CustomList())
+                                if (!CustomList())
                                     StreamerCheck(driver); // checking streamers after 15 minutes, incase the one we were watching went off.
                             }
                         }
