@@ -28,7 +28,7 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.3";
+        const string title = "TwitchGrobs-0.4";
 
         static List<string> onlineList = new List<string>();
         static List<string> excludingList = new List<string>();
@@ -82,7 +82,7 @@ namespace TwitchGrobs
                     if (currentStreamer < onlineList.Count)
                     {
                         driver.Navigate().GoToUrl("https://twitch.tv/" + onlineList[currentStreamer]);
-                        
+
                         System.Threading.Thread.Sleep(5000);
                         try
                         {
@@ -194,7 +194,7 @@ namespace TwitchGrobs
 
                     for(int i = 0; i< exclusionNum.Count;i++)
                     {
-                        excludingList.Add(onlineList[exclusionNum[i]]); // 
+                        excludingList.Add(onlineList[exclusionNum[i]]); // add to excludingList only the ones we choose by typing
                     }
                     break;
                 }
@@ -237,8 +237,8 @@ namespace TwitchGrobs
 
         static void CustomListChecks(IWebDriver driver)
         {
-            string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/a/div/div/div/div[2]/div/div/div/p";
-
+            const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/a/div/div/div/div[2]/div/div/div/p";
+            excludingList.Clear(); // Clearing the list every time we call function to prevent duplicates
             foreach (var guy in onlineList)
             {
                 driver.Navigate().GoToUrl("https://twitch.tv/" + guy);
