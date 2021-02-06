@@ -93,7 +93,7 @@ namespace TwitchGrobs
                                     System.Threading.Thread.Sleep(10); // reducing CPU use
                                     percent = driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent").GetUntilOrEmpty();
                                     Console.Write("\rPercentage of drop: {0}    " , percent);
-                                    if (percent.GetUntilOrEmpty() == "100")
+                                    if (percent == "100")
                                     {
                                         Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
                                         ClaimDrop(driver);
