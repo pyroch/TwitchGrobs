@@ -31,23 +31,18 @@ namespace TwitchGrobs
         static List<string> onlineList = new List<string>();
         static List<int> exclusion = new List<int>();
 
-        static bool customList = false;
-
         static void Main()
         {
             Console.WriteLine("Google Chrome is going to be closed. Make sure you okay with that, otherwise press 'N' (program will be closed)");
 
-            //CustomList();
-
             ConsoleKeyInfo cki = Console.ReadKey();
 
             if (cki.Key.ToString().ToLower() == "n")
-            {
                 return;
-            }
 
-            foreach (var process in System.Diagnostics.Process.GetProcessesByName("chrome"))
+            foreach (var process in Process.GetProcessesByName("chrome"))
                 process.Kill();
+
             var options = new ChromeOptions();
             options.AddArgument("user-data-dir=C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Google\\Chrome\\User Data");
             options.AddArgument("--log-level=3");
@@ -111,7 +106,7 @@ namespace TwitchGrobs
                         {
                             Console.WriteLine("No drops progression... Switching streamer in a minute.");
                             currentStreamer++;
-                            System.Threading.Thread.Sleep(60000);
+                            System.Threading.Thread.Sleep(60000); // need to change later
                         }
                     }
                     else
@@ -175,7 +170,7 @@ namespace TwitchGrobs
             while (true)
                 try
                 {
-                    Console.WriteLine("Write down the numbers of streamers you want to exclude, the press Enter. (For example: '0, 1, 3')");
+                    Console.WriteLine("Write down the numbers of streamers you want to exclude, then press Enter. (For example: '0, 1, 3')");
                     string kb = Console.ReadLine();
                     exclusion = kb.Split(',').Select(Int32.Parse).ToList();
                     break;
@@ -195,6 +190,7 @@ namespace TwitchGrobs
         {
             if(File.Exists(@".\streamers.txt"))
             {
+                Console.Clear();
                 Console.WriteLine("Custom streamers list found.");
                 try
                 {
