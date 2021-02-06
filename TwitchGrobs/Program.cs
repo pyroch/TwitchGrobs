@@ -31,7 +31,7 @@ namespace TwitchGrobs
         const string title = "TwitchGrobs-0.3";
 
         static List<string> onlineList = new List<string>();
-        static List<int> exclusion = new List<int>();
+        static List<string> excludingList = new List<string>();
 
         static void Main()
         {
@@ -65,6 +65,14 @@ namespace TwitchGrobs
 
                 while (true)
                 {
+                    if(onlineList.Count == 0)
+                    {
+                        Console.WriteLine("Nothing to watch... Sleeping for 15 minutes then checking online streamers.");
+                        System.Threading.Thread.Sleep(900000);
+                        if (!CustomList())
+                            StreamerCheck(driver);
+                    }
+
                     if (currentStreamer < onlineList.Count)
                     {
                         driver.Navigate().GoToUrl("https://twitch.tv/" + onlineList[currentStreamer]);
@@ -154,11 +162,7 @@ namespace TwitchGrobs
                     }
                 }
             }
-
-            foreach (var number in exclusion.OrderByDescending(v => v))
-            {
-                onlineList.RemoveAt(number);
-            }
+            onlineList.RemoveAll(item => excludingList.Contains(item)); // removing all items from main list that contained in excludingList
 
             Console.Clear();
             foreach (var a in onlineList)
@@ -180,17 +184,20 @@ namespace TwitchGrobs
                     string kb = Console.ReadLine();
                     if (kb.ToLower() == "n")
                         break;
-                    exclusion = kb.Split(',').Select(Int32.Parse).ToList();
+                    var exclusionNum = kb.Split(',').Select(Int32.Parse).ToList();
+
+                    for(int i = 0; i< exclusionNum.Count;i++)
+                    {
+                        excludingList.Add(onlineList[exclusionNum[i]]); // 
+                    }
                     break;
                 }
                 catch
                 {
                     Console.WriteLine("Incorrect input!");
                 }
-            foreach (var number in exclusion.OrderByDescending(v => v))
-            {
-                onlineList.RemoveAt(number);
-            }
+
+            onlineList.RemoveAll(item => excludingList.Contains(item)); // removing all items from main list that contained in excludingList
             Console.Clear();
         }
 
