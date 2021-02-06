@@ -108,9 +108,11 @@ namespace TwitchGrobs
                         }
                         catch
                         {
-                            Console.WriteLine("No drops progression... Switching streamer in a minute.");
+                            Console.WriteLine("No drops progression... Refreshing streamer list and switching in a minute.");
                             currentStreamer++;
                             System.Threading.Thread.Sleep(60000); // need to change later
+                            if (!CustomList())
+                                StreamerCheck(driver);
                         }
                     }
                     else
@@ -174,8 +176,10 @@ namespace TwitchGrobs
             while (true)
                 try
                 {
-                    Console.WriteLine("Write down the numbers of streamers you want to exclude, then press Enter. (For example: '0, 1, 3')");
+                    Console.WriteLine("Write down the numbers of streamers you want to exclude, then press Enter. (For example: '0, 1, 3') Or press 'N' to skip.");
                     string kb = Console.ReadLine();
+                    if (kb.ToLower() == "n")
+                        break;
                     exclusion = kb.Split(',').Select(Int32.Parse).ToList();
                     break;
                 }
