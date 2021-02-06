@@ -28,11 +28,14 @@ namespace TwitchGrobs
 
     class Program
     {
+        const string title = "TwitchGrobs-0.2";
+
         static List<string> onlineList = new List<string>();
         static List<int> exclusion = new List<int>();
 
         static void Main()
         {
+            Console.Title = title;
             Console.WriteLine("Google Chrome is going to be closed. Make sure you okay with that, otherwise press 'N' (program will be closed)");
 
             ConsoleKeyInfo cki = Console.ReadKey();
@@ -88,7 +91,8 @@ namespace TwitchGrobs
                                 while (sw.Elapsed < TimeSpan.FromMinutes(15)) // while cycle for 15 munutes, after that we're getting the list of streamers again. Also shows the % of drop in real time and if its 100% breaks cycle and claim the drop
                                 {
                                     System.Threading.Thread.Sleep(10); // reducing CPU use
-                                    Console.Write("\rPercentage of drop: {0}    " , driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent").GetUntilOrEmpty());
+                                    percent = driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent").GetUntilOrEmpty();
+                                    Console.Write("\rPercentage of drop: {0}    " , percent);
                                     if (percent.GetUntilOrEmpty() == "100")
                                     {
                                         Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
