@@ -106,7 +106,7 @@ namespace TwitchGrobs
                         Console.WriteLine(perName);
                         if (perName != onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
                         {
-                            Console.WriteLine("Watching the wrong streamer. Switching... (If you were watching streamer not from list it might take some time for twitch to index)");
+                            Console.WriteLine("Wrong streamer. Switching...");
                             for(int i = 0; i < onlineList.Count; i++)
                             {
                                 if (onlineList[i].ToLower() == perName)
@@ -150,7 +150,9 @@ namespace TwitchGrobs
                 }
                 else
                 {
+                    Console.WriteLine("Re-checking streamers.");
                     currentStreamer = 0;
+                    CustomListChecks();
                 }
                 System.Threading.Thread.Sleep(10); // reducing CPU usage
             }
