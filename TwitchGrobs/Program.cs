@@ -186,6 +186,7 @@ namespace TwitchGrobs
                             logFile[i] = logFile[i].Remove(0, 22);
                         }
                         onlineList = new List<string>(logFile);
+                        onlineList = onlineList.Distinct().ToList(); //remove duplicates if there is any in file for some reason
                     }
                     return true;
                 }
