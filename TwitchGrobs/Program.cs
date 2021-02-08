@@ -28,7 +28,7 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.5";
+        const string title = "TwitchGrobs-0.5.1";
 
         static List<string> onlineList = new List<string>();
         static List<string> excludingList = new List<string>();
