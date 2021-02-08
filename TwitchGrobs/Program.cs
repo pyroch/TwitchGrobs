@@ -34,12 +34,7 @@ namespace TwitchGrobs
         static List<string> excludingList = new List<string>();
         static List<string> alreadyWatched = new List<string>();
 
-        static ChromeOptions options = new ChromeOptions();
-
         static IWebDriver driver;
-
-        static int currentStreamer = 0;
-        static int request = 0;
 
         //xpaths to elements
         const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/a/div/div/div/div[2]/div/div/div/p";
@@ -50,7 +45,7 @@ namespace TwitchGrobs
         static void Init()
         {
             Console.Title = title;
-            Console.WriteLine("Google Chrome is going to be closed. Make sure you okay with that, otherwise press 'N' (program will be closed)");
+            Console.WriteLine("Google Chrome will be closed. Make sure you OK with that, otherwise press 'N'.");
 
             ConsoleKeyInfo cki = Console.ReadKey();
 
@@ -60,6 +55,8 @@ namespace TwitchGrobs
             foreach (var process in Process.GetProcessesByName("chrome"))
                 process.Kill();
 
+
+            ChromeOptions options = new ChromeOptions();
             options.AddArgument("user-data-dir=C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Google\\Chrome\\User Data");
             options.AddArgument("--log-level=3");
 
@@ -87,11 +84,12 @@ namespace TwitchGrobs
 
         static void BrowseLogic()
         {
+            int currentStreamer = 0;
             while (true)
             {
                 if (onlineList.Count == 0)
                 {
-                    Console.WriteLine("Nothing to watch... Sleeping for 15 minutes then looking through streamers list.");
+                    Console.WriteLine("Nothing to watch... Waiting 15 minutes.");
                     System.Threading.Thread.Sleep(900000);
                     CustomListChecks();
                 }
@@ -109,17 +107,6 @@ namespace TwitchGrobs
                         if (perName != onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
                         {
                             Console.WriteLine("Watching the wrong streamer. Switching... (If you were watching streamer not from list it might take some time for twitch to index)");
-                            //
-                            request++;
-                            if(request > 50)
-                            {
-                                Console.WriteLine("Chill out! waiting 15 minutes and refreshing streamers.");
-                                currentStreamer = 0;
-                                request = 0;
-                                System.Threading.Thread.Sleep(900000);
-                                CustomListChecks();
-                            }
-                            //
                             for(int i = 0; i < onlineList.Count; i++)
                             {
                                 if (onlineList[i].ToLower() == perName)
@@ -127,7 +114,6 @@ namespace TwitchGrobs
                                     currentStreamer = i;
                                 }
                             }
-                            //currentStreamer++; // might change that to switching to the right streamer so program dont have to go through all streamers
                         }
                         else
                         {
@@ -145,7 +131,7 @@ namespace TwitchGrobs
                                 {
                                     Console.WriteLine();
                                     Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
-                                    ClaimDrop(driver);
+                                    ClaimDrop();
                                     alreadyWatched.Add(onlineList[currentStreamer]);
                                     currentStreamer++;
                                     break;
@@ -159,7 +145,7 @@ namespace TwitchGrobs
                     {
                         Console.WriteLine("No drops here now... Switching in a minute.");
                         currentStreamer++;
-                        System.Threading.Thread.Sleep(60000); // need to change later
+                        System.Threading.Thread.Sleep(60000);
                     }
                 }
                 else
@@ -170,7 +156,7 @@ namespace TwitchGrobs
             }
         }
 
-        static void ClaimDrop(IWebDriver driver)
+        static void ClaimDrop()
         {
             driver.Navigate().GoToUrl("https://www.twitch.tv/drops/inventory");
             System.Threading.Thread.Sleep(3000);
