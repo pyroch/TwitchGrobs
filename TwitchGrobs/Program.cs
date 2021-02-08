@@ -28,12 +28,26 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.4";
+        const string title = "TwitchGrobs-0.5";
 
         static List<string> onlineList = new List<string>();
         static List<string> excludingList = new List<string>();
+        static List<string> alreadyWatched = new List<string>();
 
-        static void Main()
+        static ChromeOptions options = new ChromeOptions();
+
+        static IWebDriver driver;
+
+        static int currentStreamer = 0;
+        static int request = 0;
+
+        //xpaths to elements
+        const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/a/div/div/div/div[2]/div/div/div/p";
+        const string profileButton = "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button";
+        const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]";
+        //
+
+        static void Init()
         {
             Console.Title = title;
             Console.WriteLine("Google Chrome is going to be closed. Make sure you okay with that, otherwise press 'N' (program will be closed)");
@@ -46,167 +60,126 @@ namespace TwitchGrobs
             foreach (var process in Process.GetProcessesByName("chrome"))
                 process.Kill();
 
-            var options = new ChromeOptions();
             options.AddArgument("user-data-dir=C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Google\\Chrome\\User Data");
             options.AddArgument("--log-level=3");
-            //ChromeDriverService service = ChromeDriverService.CreateDefaultService(); // might use later
-            //service.SuppressInitialDiagnosticInformation = true; // might use later
 
-            using (IWebDriver driver = new ChromeDriver(options))
+            driver = new ChromeDriver(options);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            Console.Clear();
+        }
+
+        static void Main()
+        {
+            if (!CustomList())
             {
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-                int currentStreamer = 0;
+                Console.Clear();
+                Console.WriteLine("There is no streamers.txt file with list of streamers. Program will be closed.");
+                Console.Read();
+                return;
+            }
+            else
+            {
+                Init();
+                CustomListChecks();
+                BrowseLogic();
+            }
+        }
 
-                if (!CustomList())
+        static void BrowseLogic()
+        {
+            while (true)
+            {
+                if (onlineList.Count == 0)
                 {
-                    StreamerCheck(driver);
-                    Exclusion();
+                    Console.WriteLine("Nothing to watch... Sleeping for 15 minutes then looking through streamers list.");
+                    System.Threading.Thread.Sleep(900000);
+                    CustomListChecks();
+                }
+
+                if (currentStreamer < onlineList.Count)
+                {
+                    driver.Navigate().GoToUrl("https://twitch.tv/" + onlineList[currentStreamer]);
+                    try
+                    {
+                        driver.FindElement(By.XPath(profileButton)).Click(); // Clicking on profile button to get % of drop
+                        System.Threading.Thread.Sleep(3000);
+                        var percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
+                        var perName = percent.Substring(percent.LastIndexOf('/') + 1);
+                        Console.WriteLine(perName);
+                        if (perName != onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
+                        {
+                            Console.WriteLine("Watching the wrong streamer. Switching... (If you were watching streamer not from list it might take some time for twitch to index)");
+                            //
+                            request++;
+                            if(request > 50)
+                            {
+                                Console.WriteLine("Chill out! waiting 15 minutes and refreshing streamers.");
+                                currentStreamer = 0;
+                                request = 0;
+                                System.Threading.Thread.Sleep(900000);
+                                CustomListChecks();
+                            }
+                            //
+                            for(int i = 0; i < onlineList.Count; i++)
+                            {
+                                if (onlineList[i].ToLower() == perName)
+                                {
+                                    currentStreamer = i;
+                                }
+                            }
+                            //currentStreamer++; // might change that to switching to the right streamer so program dont have to go through all streamers
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Currently watching " + onlineList[currentStreamer]);
+
+                            Stopwatch sw = new Stopwatch();
+                            sw.Start();
+                            while (sw.Elapsed < TimeSpan.FromMinutes(15)) // while cycle for 15 munutes, after that we're getting the list of streamers again. Also shows the % of drop in real time and if its 100% breaks cycle and claim the drop
+                            {
+                                System.Threading.Thread.Sleep(10); // reducing CPU usage
+                                percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent").GetUntilOrEmpty();
+                                Console.Write("\rPercentage of drop: {0}    ", percent);
+                                if (percent == "100")
+                                {
+                                    Console.WriteLine();
+                                    Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
+                                    ClaimDrop(driver);
+                                    alreadyWatched.Add(onlineList[currentStreamer]);
+                                    currentStreamer++;
+                                    break;
+                                }
+                            }
+                            CustomListChecks(); // Looking through all streamers list every 15 to make sure they're still online.
+                            Console.WriteLine();
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine("No drops here now... Switching in a minute.");
+                        currentStreamer++;
+                        System.Threading.Thread.Sleep(60000); // need to change later
+                    }
                 }
                 else
                 {
-                    CustomListChecks(driver);
+                    currentStreamer = 0;
                 }
-
-                while (true)
-                {
-                    if(onlineList.Count == 0)
-                    {
-                        Console.WriteLine("Nothing to watch... Sleeping for 15 minutes then checking online streamers.");
-                        System.Threading.Thread.Sleep(900000);
-                        if (!CustomList())
-                            StreamerCheck(driver);
-                        else
-                            CustomListChecks(driver);
-                    }
-
-                    if (currentStreamer < onlineList.Count)
-                    {
-                        driver.Navigate().GoToUrl("https://twitch.tv/" + onlineList[currentStreamer]);
-
-                        System.Threading.Thread.Sleep(5000);
-                        try
-                        {
-                            driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button")).Click(); // Clicking on profile button to get % of drop
-                            System.Threading.Thread.Sleep(1000);
-                            var percent = driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
-                            var perName = percent.Substring(percent.LastIndexOf('/') + 1);
-                            if (perName != onlineList[currentStreamer].ToLowerInvariant()) // checks if streamer page is the same as progressing one
-                            {
-                                Console.WriteLine("Watching the wrong streamer. Switching... (If you were watching streamer not from list it might take some time for twitch to index)");
-                                currentStreamer++; // might change that to switching to the right streamer so program dont have to go through all streamers
-                            }
-                            else
-                            {
-                                Console.Clear();
-                                Console.WriteLine("Currently watching " + onlineList[currentStreamer]);
-
-                                Stopwatch sw = new Stopwatch();
-                                sw.Start();
-                                while (sw.Elapsed < TimeSpan.FromMinutes(15)) // while cycle for 15 munutes, after that we're getting the list of streamers again. Also shows the % of drop in real time and if its 100% breaks cycle and claim the drop
-                                {
-                                    System.Threading.Thread.Sleep(10); // reducing CPU use
-                                    percent = driver.FindElement(By.XPath("/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]")).GetAttribute("textContent").GetUntilOrEmpty();
-                                    Console.Write("\rPercentage of drop: {0}    " , percent);
-                                    if (percent == "100")
-                                    {
-                                        Console.WriteLine();
-                                        Console.WriteLine("100% on one of drops. Claiming and switching streamer.");
-                                        ClaimDrop(driver);
-                                        currentStreamer++;
-                                        break;
-                                    }
-                                }
-                                Console.WriteLine();
-
-                                if (!CustomList())
-                                    StreamerCheck(driver); // checking streamers after 15 minutes, incase the one we were watching went off.
-                            }
-                        }
-                        catch
-                        {
-                            Console.WriteLine("No drops progression... Refreshing streamer list and switching in a minute.");
-                            currentStreamer++;
-                            System.Threading.Thread.Sleep(60000); // need to change later
-                            if (!CustomList())
-                                StreamerCheck(driver);
-                        }
-                    }
-                    else
-                    {
-                        currentStreamer = 0;
-                    }
-                    System.Threading.Thread.Sleep(10); // Less CPU usage
-                }
+                System.Threading.Thread.Sleep(10); // reducing CPU usage
             }
         }
 
         static void ClaimDrop(IWebDriver driver)
         {
             driver.Navigate().GoToUrl("https://www.twitch.tv/drops/inventory");
-            System.Threading.Thread.Sleep(5000);
-
-            driver.FindElement(By.XPath("//button[@data-test-selector ='DropsCampaignInProgressRewardPresentation-claim-button']")).Click();
-        }
-
-        static void StreamerCheck(IWebDriver driver)
-        {
-            driver.Navigate().GoToUrl("https://twitch.facepunch.com/");
-            onlineList.Clear();
-            System.Threading.Thread.Sleep(5000);
-            for (int x = 1; x <= 3; x++)
+            System.Threading.Thread.Sleep(3000);
+            var buttons = driver.FindElements(By.XPath("//button[@data-test-selector ='DropsCampaignInProgressRewardPresentation-claim-button']"));
+            foreach(var button in buttons)
             {
-                for (int y = 2; y <= 4; y++)
-                {
-                    string streamerHeader = $"/html/body/div[1]/div[2]/div[{y}]/a[{x}]/div[1]";
-                    var streamerName = driver.FindElement(By.XPath(streamerHeader)).FindElement(By.ClassName("drop-item__header-streamer")).FindElement(By.ClassName("username"));
-
-                    string statusHeader = $"/html/body/div[1]/div[2]/div[{y}]/a[{x}]/div[1]";
-                    var status = driver.FindElement(By.XPath(statusHeader)).FindElement(By.ClassName("drop-item__header-status")).GetAttribute("textContent");
-                    status = string.Join("", status.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
-
-                    if (status == "Live")
-                    {
-                        onlineList.Add(streamerName.GetAttribute("textContent"));
-                    }
-                }
+                button.Click();
+                System.Threading.Thread.Sleep(1000);
             }
-            onlineList.RemoveAll(item => excludingList.Contains(item)); // removing all items from main list that contained in excludingList
-
-            Console.Clear();
-            foreach (var a in onlineList)
-                Console.WriteLine(a + " is live.");
-            Console.WriteLine();
-        }
-
-        static void Exclusion()
-        {
-            Console.Clear();
-            for (int i = 0; i < onlineList.Count; i++)
-            {
-                Console.WriteLine("(" + i + ") " + onlineList[i]);
-            }
-            while (true)
-                try
-                {
-                    Console.WriteLine("Write down the numbers of streamers you want to exclude, then press Enter. (For example: '0, 1, 3') Or press 'N' to skip.");
-                    string kb = Console.ReadLine();
-                    if (kb.ToLower() == "n")
-                        break;
-                    var exclusionNum = kb.Split(',').Select(Int32.Parse).ToList();
-
-                    for(int i = 0; i< exclusionNum.Count;i++)
-                    {
-                        excludingList.Add(onlineList[exclusionNum[i]]); // add to excludingList only the ones we choose by typing
-                    }
-                    break;
-                }
-                catch
-                {
-                    Console.WriteLine("Incorrect input!");
-                }
-
-            onlineList.RemoveAll(item => excludingList.Contains(item)); // removing all items from main list that contained in excludingList
-            Console.Clear();
         }
 
         static bool CustomList()
@@ -237,22 +210,17 @@ namespace TwitchGrobs
             return false;
         }
 
-        static void CustomListChecks(IWebDriver driver)
+        static void CustomListChecks()
         {
-            const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/a/div/div/div/div[2]/div/div/div/p";
             excludingList.Clear(); // Clearing the list every time we call function to prevent duplicates
+            onlineList.RemoveAll(item => alreadyWatched.Contains(item)); // removing the ones that was already watched
             foreach (var guy in onlineList)
             {
                 driver.Navigate().GoToUrl("https://twitch.tv/" + guy);
-                System.Threading.Thread.Sleep(5000);
                 try
                 {
-
-                    var status = driver.FindElement(By.XPath(livePath));
-                    if (status.Displayed)
-                    {
-                        Console.WriteLine(guy + " is Online!");
-                    }
+                    if (driver.FindElement(By.XPath(livePath)).Displayed)
+                        Console.WriteLine(guy + " is Live.");
                 }
                 catch
                 {
