@@ -31,7 +31,6 @@ namespace TwitchGrobs
         const string title = "TwitchGrobs-0.5.2";
 
         static List<string> onlineList = new List<string>();
-        static List<string> offlineList = new List<string>();
         static List<string> alreadyWatched = new List<string>();
 
         static IWebDriver driver;
@@ -80,8 +79,7 @@ namespace TwitchGrobs
                 if (onlineList.Count == 0)
                 {
                     Console.WriteLine("Nothing to watch... Waiting 15 minutes.");
-                    //System.Threading.Thread.Sleep(900000);
-                    System.Threading.Thread.Sleep(10000);
+                    System.Threading.Thread.Sleep(900000);
                     CustomListChecks();
                 }
 
@@ -201,7 +199,8 @@ namespace TwitchGrobs
             }
             Console.WriteLine("Re-checking streamers.");
 
-            offlineList.Clear(); // Clearing the list every time we call function to prevent duplicates
+            List<string> offlineList = new List<string>();
+
             onlineList.RemoveAll(item => alreadyWatched.Contains(item)); // removing the ones that was already watched
             foreach (var guy in onlineList)
             {
