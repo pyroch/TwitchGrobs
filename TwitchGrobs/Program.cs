@@ -28,7 +28,7 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.5.2";
+        const string title = "TwitchGrobs-0.5.3";
 
         static List<string> onlineList = new List<string>();
         static List<string> alreadyWatched = new List<string>();
@@ -49,7 +49,7 @@ namespace TwitchGrobs
             ConsoleKeyInfo cki = Console.ReadKey();
 
             if (cki.Key.ToString().ToLower() == "n")
-                return;
+                Environment.Exit(0);
 
             foreach (var process in Process.GetProcessesByName("chrome"))
                 process.Kill();
@@ -66,6 +66,8 @@ namespace TwitchGrobs
 
         static void Main()
         {
+            GetCustomList();
+            Console.WriteLine("List of streamers found.\n");
             Init();
             CustomListChecks();
             BrowseLogic();
@@ -79,6 +81,7 @@ namespace TwitchGrobs
                 if (onlineList.Count == 0)
                 {
                     Console.WriteLine("Nothing to watch... Waiting 15 minutes.");
+                    driver.Navigate().GoToUrl("https://www.twitch.tv/drops/inventory");
                     System.Threading.Thread.Sleep(900000);
                     CustomListChecks();
                 }
@@ -159,7 +162,7 @@ namespace TwitchGrobs
             }
         }
 
-        static bool CustomList()
+        static void GetCustomList()
         {
             if(File.Exists(@".\streamers.txt"))
             {
@@ -167,7 +170,6 @@ namespace TwitchGrobs
                 {
                     if (onlineList.Count == 0)
                     {
-                        //Console.Clear();
                         var logFile = File.ReadAllLines(@".\streamers.txt");
                         for (int i = 0; i < logFile.Length; i++)
                         {
@@ -176,28 +178,29 @@ namespace TwitchGrobs
                         onlineList = new List<string>(logFile);
                         onlineList = onlineList.Distinct().ToList(); //remove duplicates if there is any in file for some reason
                     }
-                    return true;
+                    return;
                 }
                 catch
                 {
-                    Console.WriteLine("The list has wrong format.");
-                    return false;
+                    Console.Clear();
+                    Console.WriteLine("The list has wrong format. Program will be closed.");
+                    Console.ReadKey();
+                    Environment.Exit(0);
                 }
             }
-            return false;
+            Console.Clear();
+            Console.WriteLine("There is no streamers.txt file with list of streamers. Program will be closed.");
+            Console.ReadKey();
+            Environment.Exit(0);
         }
 
         static void CustomListChecks()
         {
             onlineList.Clear();
-            if (!CustomList())
-            {
-                Console.Clear();
-                Console.WriteLine("There is no streamers.txt file with list of streamers. Program will be closed.");
-                Console.Read();
-                return;
-            }
-            Console.WriteLine("Re-checking streamers.");
+            GetCustomList();
+            Console.Clear();
+
+            Console.WriteLine("Checking streamers status.");
 
             List<string> offlineList = new List<string>();
 
