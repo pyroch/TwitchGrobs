@@ -201,7 +201,8 @@ namespace TwitchGrobs
             GetCustomList();
             Console.Clear();
 
-            Console.WriteLine("Checking streamers status.");
+            Console.WriteLine("Checking streamers status...");
+            Console.WriteLine("------------------");
 
             List<string> offlineList = new List<string>();
 
@@ -225,11 +226,12 @@ namespace TwitchGrobs
                 }
                 catch
                 {
-                    Console.WriteLine(guy + " incorrect/offline");
+                    Console.WriteLine(guy + " incorrect/offline.");
                     offlineList.Add(guy);
                 }
             }
             onlineList.RemoveAll(item => offlineList.Contains(item)); // removing all items from main list that contained in offlineList
+            Console.WriteLine("------------------");
         }
     }
 }
