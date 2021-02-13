@@ -28,7 +28,7 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.5.3";
+        const string title = "TwitchGrobs-0.5.4";
 
         static List<string> onlineList = new List<string>();
         static List<string> alreadyWatched = new List<string>();
@@ -37,6 +37,7 @@ namespace TwitchGrobs
 
         //xpaths to elements
         const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/a/div/div/div/div[2]/div/div/div/p";
+        const string offPath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div[1]/div[1]/div[2]/div/div/div/div[2]/div[1]/div[1]/div/div[1]/div";
         const string profileButton = "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button";
         const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]";
         //
@@ -95,7 +96,6 @@ namespace TwitchGrobs
                         System.Threading.Thread.Sleep(3000);
                         var percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
                         var perName = percent.Substring(percent.LastIndexOf('/') + 1);
-                        Console.WriteLine(perName);
                         if (perName != onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
                         {
                             Console.WriteLine("Wrong streamer. Switching...");
@@ -175,6 +175,7 @@ namespace TwitchGrobs
                         {
                             logFile[i] = logFile[i].Remove(0, 22);
                         }
+
                         onlineList = new List<string>(logFile);
                         onlineList = onlineList.Distinct().ToList(); //remove duplicates if there is any in file for some reason
                     }
@@ -210,12 +211,21 @@ namespace TwitchGrobs
                 driver.Navigate().GoToUrl("https://twitch.tv/" + guy);
                 try
                 {
-                    if (driver.FindElement(By.XPath(livePath)).Displayed)
-                        Console.WriteLine(guy + " is Live.");
+                    var status = driver.FindElement(By.XPath(livePath + " | " + offPath));
+                    if (status.Displayed)
+                    {
+                        if (status.Text == "OFFLINE" || status.Text == "HOSTING")
+                        {
+                            Console.WriteLine(guy + " is Offline.");
+                            offlineList.Add(guy);
+                        }
+                        if(status.Text == "LIVE")
+                            Console.WriteLine(guy + " is Live.");
+                    }
                 }
                 catch
                 {
-                    Console.WriteLine(guy + " is Offline.");
+                    Console.WriteLine(guy + " incorrect/offline");
                     offlineList.Add(guy);
                 }
             }
