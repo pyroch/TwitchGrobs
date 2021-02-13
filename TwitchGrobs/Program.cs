@@ -28,10 +28,10 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.5.1";
+        const string title = "TwitchGrobs-0.5.2";
 
         static List<string> onlineList = new List<string>();
-        static List<string> excludingList = new List<string>();
+        static List<string> offlineList = new List<string>();
         static List<string> alreadyWatched = new List<string>();
 
         static IWebDriver driver;
@@ -67,19 +67,9 @@ namespace TwitchGrobs
 
         static void Main()
         {
-            if (!CustomList())
-            {
-                Console.Clear();
-                Console.WriteLine("There is no streamers.txt file with list of streamers. Program will be closed.");
-                Console.Read();
-                return;
-            }
-            else
-            {
-                Init();
-                CustomListChecks();
-                BrowseLogic();
-            }
+            Init();
+            CustomListChecks();
+            BrowseLogic();
         }
 
         static void BrowseLogic()
@@ -90,7 +80,8 @@ namespace TwitchGrobs
                 if (onlineList.Count == 0)
                 {
                     Console.WriteLine("Nothing to watch... Waiting 15 minutes.");
-                    System.Threading.Thread.Sleep(900000);
+                    //System.Threading.Thread.Sleep(900000);
+                    System.Threading.Thread.Sleep(10000);
                     CustomListChecks();
                 }
 
@@ -137,6 +128,7 @@ namespace TwitchGrobs
                                     break;
                                 }
                             }
+                            Console.WriteLine();
                             CustomListChecks(); // Looking through all streamers list every 15 to make sure they're still online.
                             Console.WriteLine();
                         }
@@ -148,9 +140,8 @@ namespace TwitchGrobs
                         System.Threading.Thread.Sleep(60000);
                     }
                 }
-                else
+                else if(onlineList.Count != 0)
                 {
-                    Console.WriteLine("Re-checking streamers.");
                     currentStreamer = 0;
                     CustomListChecks();
                 }
@@ -178,8 +169,7 @@ namespace TwitchGrobs
                 {
                     if (onlineList.Count == 0)
                     {
-                        Console.Clear();
-                        Console.WriteLine("Custom streamers list found.");
+                        //Console.Clear();
                         var logFile = File.ReadAllLines(@".\streamers.txt");
                         for (int i = 0; i < logFile.Length; i++)
                         {
@@ -201,7 +191,17 @@ namespace TwitchGrobs
 
         static void CustomListChecks()
         {
-            excludingList.Clear(); // Clearing the list every time we call function to prevent duplicates
+            onlineList.Clear();
+            if (!CustomList())
+            {
+                Console.Clear();
+                Console.WriteLine("There is no streamers.txt file with list of streamers. Program will be closed.");
+                Console.Read();
+                return;
+            }
+            Console.WriteLine("Re-checking streamers.");
+
+            offlineList.Clear(); // Clearing the list every time we call function to prevent duplicates
             onlineList.RemoveAll(item => alreadyWatched.Contains(item)); // removing the ones that was already watched
             foreach (var guy in onlineList)
             {
@@ -214,10 +214,10 @@ namespace TwitchGrobs
                 catch
                 {
                     Console.WriteLine(guy + " is Offline.");
-                    excludingList.Add(guy);
+                    offlineList.Add(guy);
                 }
             }
-            onlineList.RemoveAll(item => excludingList.Contains(item)); // removing all items from main list that contained in excludingList
+            onlineList.RemoveAll(item => offlineList.Contains(item)); // removing all items from main list that contained in offlineList
         }
     }
 }
