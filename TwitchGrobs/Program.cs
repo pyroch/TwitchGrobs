@@ -28,7 +28,7 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.5.4";
+        const string title = "TwitchGrobs-0.5.5";
 
         static List<string> onlineList = new List<string>();
         static List<string> alreadyWatched = new List<string>();
@@ -48,13 +48,11 @@ namespace TwitchGrobs
             Console.WriteLine("Google Chrome will be closed. Make sure you OK with that, otherwise press 'N'.");
 
             ConsoleKeyInfo cki = Console.ReadKey();
-
             if (cki.Key.ToString().ToLower() == "n")
                 Environment.Exit(0);
 
             foreach (var process in Process.GetProcessesByName("chrome"))
                 process.Kill();
-
 
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("user-data-dir=C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Google\\Chrome\\User Data");
@@ -93,21 +91,10 @@ namespace TwitchGrobs
                     try
                     {
                         driver.FindElement(By.XPath(profileButton)).Click(); // Clicking on profile button to get % of drop
-                        System.Threading.Thread.Sleep(3000);
+                        //System.Threading.Thread.Sleep(3000);
                         var percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
                         var perName = percent.Substring(percent.LastIndexOf('/') + 1);
-                        if (perName != onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
-                        {
-                            Console.WriteLine("Wrong streamer. Switching...");
-                            for(int i = 0; i < onlineList.Count; i++)
-                            {
-                                if (onlineList[i].ToLower() == perName)
-                                {
-                                    currentStreamer = i;
-                                }
-                            }
-                        }
-                        else
+                        if (perName == onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
                         {
                             Console.Clear();
                             Console.WriteLine("Currently watching " + onlineList[currentStreamer]);
@@ -132,6 +119,26 @@ namespace TwitchGrobs
                             Console.WriteLine();
                             CustomListChecks(); // Looking through all streamers list every 15 to make sure they're still online.
                             Console.WriteLine();
+                        }
+                        else
+                        {
+                            if (!onlineList.Contains(perName, StringComparer.OrdinalIgnoreCase))
+                            {
+                                Console.WriteLine("No drops here now... Switching in a minute.");
+                                currentStreamer++;
+                                System.Threading.Thread.Sleep(60000);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Wrong streamer. Switching...");
+                                for (int i = 0; i < onlineList.Count; i++)
+                                {
+                                    if (onlineList[i].ToLower() == perName)
+                                    {
+                                        currentStreamer = i;
+                                    }
+                                }
+                            }
                         }
                     }
                     catch
