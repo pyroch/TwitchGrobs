@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
 
 namespace TwitchGrobs
 {
@@ -28,7 +27,7 @@ namespace TwitchGrobs
 
     class Program
     {
-        const string title = "TwitchGrobs-0.5.5";
+        const string title = "TwitchGrobs-0.5.6";
 
         static List<string> onlineList = new List<string>();
         static List<string> alreadyWatched = new List<string>();
@@ -45,20 +44,26 @@ namespace TwitchGrobs
         static void Init()
         {
             Console.Title = title;
-            Console.WriteLine("Google Chrome will be closed. Make sure you OK with that, otherwise press 'N'.");
+            var procs = Process.GetProcessesByName("chrome");
+            if (procs.Length != 0)
+            {
+                Console.WriteLine("Google Chrome will be closed. Make sure you OK with that, otherwise press 'N'.");
 
-            ConsoleKeyInfo cki = Console.ReadKey();
-            if (cki.Key.ToString().ToLower() == "n")
-                Environment.Exit(0);
+                ConsoleKeyInfo cki = Console.ReadKey();
+                if (cki.Key.ToString().ToLower() == "n")
+                    Environment.Exit(0);
 
-            foreach (var process in Process.GetProcessesByName("chrome"))
-                process.Kill();
+                foreach (var process in Process.GetProcessesByName("chrome"))
+                    process.Kill();
+            }
 
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("user-data-dir=C:\\Users\\" + Environment.UserName + "\\AppData\\Local\\Google\\Chrome\\User Data");
             options.AddArgument("--log-level=3");
+            options.AddArgument("--no-sandbox");
+            options.AddArgument("--disable-gpu");
 
-            driver = new ChromeDriver(options);
+            driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(), options, TimeSpan.FromMinutes(5));
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
             Console.Clear();
         }
@@ -91,7 +96,6 @@ namespace TwitchGrobs
                     try
                     {
                         driver.FindElement(By.XPath(profileButton)).Click(); // Clicking on profile button to get % of drop
-                        //System.Threading.Thread.Sleep(3000);
                         var percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
                         var perName = percent.Substring(percent.LastIndexOf('/') + 1);
                         if (perName == onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
