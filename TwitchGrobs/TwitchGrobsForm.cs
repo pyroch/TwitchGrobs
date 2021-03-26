@@ -2,42 +2,35 @@
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TwitchGrobs
 {
-
     public partial class TwitchGrobsForm : Form
     {
-        static IWebDriver driver;
+        private IWebDriver driver;
 
-        static List<string> onlineList = new List<string>();
-        static List<string> alreadyWatched = new List<string>();
+        private List<string> onlineList = new List<string>();
+        private List<string> alreadyWatched = new List<string>();
 
         const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/div/div/a/div[2]/div/div/div/div/p";
         const string offPath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[1]/div[2]/div/div/div/div[2]/div[1]/div[1]/div/div[1]/div/p";
         const string profileButton = "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button";
         const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]";
 
-        Thread browseThread;
+        private Thread browseThread, initThread;
 
         public TwitchGrobsForm()
         {
-
             InitializeComponent();
-            Init();
-            browseThread = new Thread(BrowseLogic);
-            browseThread.IsBackground = true;
-            browseThread.Start();
+            TopMost = true;
+            initThread = new Thread(Init);
+            initThread.IsBackground = true;
+            initThread.Start();
         }
 
         void Init()
@@ -48,7 +41,7 @@ namespace TwitchGrobs
             var procs = Process.GetProcessesByName("chrome");
             if (procs.Length != 0)
             {
-                if (MessageBox.Show("Google Chrome will be closed. Make sure you OK with that.", "TwitchGrobs", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("Google Chrome will be closed. Make sure you OK with that.", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     foreach (var process in Process.GetProcessesByName("chrome"))
                         process.Kill();
@@ -69,7 +62,11 @@ namespace TwitchGrobs
             driver = new ChromeDriver(chromeDriverService, options, TimeSpan.FromMinutes(5));
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 
-            //CustomListChecks();
+            CustomListChecks();
+
+            browseThread = new Thread(BrowseLogic);
+            browseThread.IsBackground = true;
+            browseThread.Start();
         }
 
         void VerCheck()
@@ -81,9 +78,9 @@ namespace TwitchGrobs
             using (var reader = new StreamReader(content))
             {
                 var strContent = reader.ReadToEnd();
-                if(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() != strContent)
+                if (Application.ProductVersion != strContent)
                 {
-                    MessageBox.Show("Err", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Program isn't up to date. Check for updates if you have any issues when running it.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -123,7 +120,6 @@ namespace TwitchGrobs
             GetCustomList();
 
             StatusLog("Checking streamers status...");
-            StatusLog("------------------");
 
             List<string> offlineList = new List<string>();
 
@@ -147,12 +143,11 @@ namespace TwitchGrobs
                 }
                 catch
                 {
-                    StatusLog(guy + " incorrect/offline.");
+                    StatusLog(guy + " incorrect/offline.\n(If this happens to everyone make an issue on GitHub)");
                     offlineList.Add(guy);
                 }
             }
             onlineList.RemoveAll(item => offlineList.Contains(item)); // removing all items from main list that contained in offlineList
-            StatusLog("------------------");
         }
 
         void BrowseLogic()
@@ -162,7 +157,6 @@ namespace TwitchGrobs
             {
                 if (onlineList.Count == 0)
                 {
-                    StatusLog("Nothing to watch... Waiting 15 minutes.");
                     StatusLog("Nothing to watch... Waiting 15 minutes.");
                     driver.Navigate().GoToUrl("https://www.twitch.tv/drops/inventory");
                     System.Threading.Thread.Sleep(900000);
@@ -191,7 +185,6 @@ namespace TwitchGrobs
                                 StatusLog("Percentage of drop: " + percent.ToString());
                                 if (percent == "100")
                                 {
-                                    //StatusLog();
                                     StatusLog("100% on one of drops. Claiming and switching streamer.");
                                     ClaimDrop();
                                     alreadyWatched.Add(onlineList[currentStreamer]);
@@ -199,9 +192,7 @@ namespace TwitchGrobs
                                     break;
                                 }
                             }
-                            //StatusLog();
                             CustomListChecks(); // Looking through all streamers list every 15 to make sure they're still online.
-                            //StatusLog();
                         }
                         else
                         {
@@ -251,7 +242,6 @@ namespace TwitchGrobs
                 System.Threading.Thread.Sleep(1000);
             }
         }
-
 
         void StatusLog(string text)
         {

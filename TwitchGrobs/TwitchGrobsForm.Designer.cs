@@ -29,6 +29,7 @@ namespace TwitchGrobs
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TwitchGrobsForm));
             this.status = new System.Windows.Forms.Label();
             this.currentStreamerText = new System.Windows.Forms.Label();
             this.currStreamer = new System.Windows.Forms.Label();
@@ -46,7 +47,7 @@ namespace TwitchGrobs
             // currentStreamerText
             // 
             this.currentStreamerText.AutoSize = true;
-            this.currentStreamerText.Location = new System.Drawing.Point(12, 57);
+            this.currentStreamerText.Location = new System.Drawing.Point(12, 107);
             this.currentStreamerText.Name = "currentStreamerText";
             this.currentStreamerText.Size = new System.Drawing.Size(87, 13);
             this.currentStreamerText.TabIndex = 1;
@@ -55,21 +56,21 @@ namespace TwitchGrobs
             // currStreamer
             // 
             this.currStreamer.AutoSize = true;
-            this.currStreamer.Location = new System.Drawing.Point(106, 57);
+            this.currStreamer.Location = new System.Drawing.Point(105, 107);
             this.currStreamer.Name = "currStreamer";
-            this.currStreamer.Size = new System.Drawing.Size(33, 13);
+            this.currStreamer.Size = new System.Drawing.Size(0, 13);
             this.currStreamer.TabIndex = 2;
-            this.currStreamer.Text = "None";
             // 
             // TwitchGrobsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(271, 177);
+            this.ClientSize = new System.Drawing.Size(280, 129);
             this.Controls.Add(this.currStreamer);
             this.Controls.Add(this.currentStreamerText);
             this.Controls.Add(this.status);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "TwitchGrobsForm";
             this.Text = "TwitchGrobs";
