@@ -42,6 +42,7 @@ namespace TwitchGrobs
 
         void Init()
         {
+            VerCheck();
             GetCustomList();
 
             var procs = Process.GetProcessesByName("chrome");
@@ -69,6 +70,22 @@ namespace TwitchGrobs
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 
             //CustomListChecks();
+        }
+
+        void VerCheck()
+        {
+            var webRequest = System.Net.WebRequest.Create(@"https://raw.githubusercontent.com/pyroch/TwitchGrobs/gui/TwitchGrobs/version");
+
+            using (var response = webRequest.GetResponse())
+            using (var content = response.GetResponseStream())
+            using (var reader = new StreamReader(content))
+            {
+                var strContent = reader.ReadToEnd();
+                if(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() != strContent)
+                {
+                    MessageBox.Show("Err", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         void GetCustomList()
@@ -250,11 +267,6 @@ namespace TwitchGrobs
                 Invoke((Action<string>)StreamerLog, text);
             else
                 currStreamer.Text = text;
-        }
-
-        void TwitchGrobsForm_UnLoad(object sender, EventArgs e)
-        {
-            browseThread.Abort();
         }
     }
 

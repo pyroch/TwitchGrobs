@@ -32,8 +32,6 @@ namespace TwitchGrobs
             this.status = new System.Windows.Forms.Label();
             this.currentStreamerText = new System.Windows.Forms.Label();
             this.currStreamer = new System.Windows.Forms.Label();
-            this.version = new System.Windows.Forms.Label();
-            this.verText = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // status
@@ -63,31 +61,11 @@ namespace TwitchGrobs
             this.currStreamer.TabIndex = 2;
             this.currStreamer.Text = "None";
             // 
-            // version
-            // 
-            this.version.AutoSize = true;
-            this.version.Location = new System.Drawing.Point(97, 155);
-            this.version.Name = "version";
-            this.version.Size = new System.Drawing.Size(31, 13);
-            this.version.TabIndex = 4;
-            this.version.Text = "0.0.0";
-            // 
-            // verText
-            // 
-            this.verText.AutoSize = true;
-            this.verText.Location = new System.Drawing.Point(12, 155);
-            this.verText.Name = "verText";
-            this.verText.Size = new System.Drawing.Size(79, 13);
-            this.verText.TabIndex = 6;
-            this.verText.Text = "Current Version";
-            // 
             // TwitchGrobsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(271, 177);
-            this.Controls.Add(this.verText);
-            this.Controls.Add(this.version);
             this.Controls.Add(this.currStreamer);
             this.Controls.Add(this.currentStreamerText);
             this.Controls.Add(this.status);
@@ -105,8 +83,6 @@ namespace TwitchGrobs
         private System.Windows.Forms.Label status;
         private System.Windows.Forms.Label currentStreamerText;
         private System.Windows.Forms.Label currStreamer;
-        private System.Windows.Forms.Label version;
-        private System.Windows.Forms.Label verText;
     }
 }
 
