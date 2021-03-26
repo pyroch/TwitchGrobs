@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitchGrobs", "TwitchGrobs\TwitchGrobs.csproj", "{A037897B-B65F-4CE8-9DAD-75BEC1341C8D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A037897B-B65F-4CE8-9DAD-75BEC1341C8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A037897B-B65F-4CE8-9DAD-75BEC1341C8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A037897B-B65F-4CE8-9DAD-75BEC1341C8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A037897B-B65F-4CE8-9DAD-75BEC1341C8D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BDA68E03-603D-4D38-B8E8-44B0346FF0EC}
+	EndGlobalSection
+EndGlobal
