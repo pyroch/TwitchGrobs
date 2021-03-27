@@ -27,7 +27,6 @@ namespace TwitchGrobs
         public TwitchGrobsForm()
         {
             InitializeComponent();
-            //this.Closing += new EventHandler(TwitchGrobsForm_FormClosing);
 
             TopMost = true;
             initThread = new Thread(Init);
@@ -264,6 +263,8 @@ namespace TwitchGrobs
         private void TwitchGrobsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             foreach (var process in Process.GetProcessesByName("chrome"))
+                process.Kill();
+            foreach (var process in Process.GetProcessesByName("chromedriver"))
                 process.Kill();
         }
 
