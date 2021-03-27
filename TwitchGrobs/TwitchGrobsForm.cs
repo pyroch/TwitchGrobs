@@ -27,6 +27,7 @@ namespace TwitchGrobs
         public TwitchGrobsForm()
         {
             InitializeComponent();
+
             TopMost = true;
             initThread = new Thread(Init);
             initThread.IsBackground = true;
@@ -38,10 +39,14 @@ namespace TwitchGrobs
             VerCheck();
             GetCustomList();
 
+            //
+            FillList();
+            //
+
             var procs = Process.GetProcessesByName("chrome");
             if (procs.Length != 0)
             {
-                if (MessageBox.Show("Google Chrome will be closed. Make sure you OK with that.", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show("Google Chrome will be closed. Make sure you OK with that.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                 {
                     foreach (var process in Process.GetProcessesByName("chrome"))
                         process.Kill();
@@ -250,13 +255,34 @@ namespace TwitchGrobs
             else
                 status.Text = text;
         }
-
         void StreamerLog(string text)
         {
             if (InvokeRequired)
                 Invoke((Action<string>)StreamerLog, text);
             else
                 currStreamer.Text = text;
+        }
+        void FillList()
+        {
+            if(InvokeRequired)
+            {
+                Invoke((Action)FillList);
+            }
+            else
+            {
+                ColumnHeader header = new ColumnHeader();
+                header.Text = "ddd";
+                header.Name = "c1";
+                streamersList.HeaderStyle = ColumnHeaderStyle.None;
+                streamersList.Columns.Add(header);
+                streamersList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                streamersList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+                foreach (var x in onlineList)
+                {
+                    streamersList.Items.Add(x);
+                }
+            }
+            
         }
     }
 
