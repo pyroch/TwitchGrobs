@@ -18,7 +18,7 @@ namespace TwitchGrobs
         private List<string> alreadyWatched = new List<string>();
 
         const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/div/div/a/div[2]/div/div/div/div/p";
-        const string offPath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[1]/div[2]/div/div/div/div[2]/div[1]/div[1]/div/div[1]/div/p";
+        const string offPath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[1]/div[2]/div/div/div/div[2]/div[1]/div[1]/div/div[1]/div/pp";
         const string profileButton = "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button";
         const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]";
 
@@ -144,7 +144,8 @@ namespace TwitchGrobs
                 }
                 catch
                 {
-                    StatusLog(guy + " incorrect/offline.\n(If this happens to everyone make an issue on GitHub)");
+                    StatusLog(guy + " incorrect/offline.");
+                    MessageBox.Show("If you see incorrect/offline and it's not true, make an issue on GitHub github.com/pyroch/TwitchGrobs.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     offlineList.Add(guy);
                 }
             }
