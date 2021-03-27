@@ -65,9 +65,8 @@ namespace TwitchGrobs
             // 
             // streamersList
             // 
-            this.streamersList.Enabled = false;
-            this.streamersList.HideSelection = false;
             this.streamersList.Location = new System.Drawing.Point(13, 26);
+            this.streamersList.MultiSelect = false;
             this.streamersList.Name = "streamersList";
             this.streamersList.Size = new System.Drawing.Size(259, 210);
             this.streamersList.TabIndex = 3;
