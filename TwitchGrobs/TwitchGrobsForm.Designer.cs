@@ -57,10 +57,11 @@ namespace TwitchGrobs
             // currStreamer
             // 
             this.currStreamer.AutoSize = true;
-            this.currStreamer.Location = new System.Drawing.Point(105, 239);
+            this.currStreamer.Location = new System.Drawing.Point(95, 239);
             this.currStreamer.Name = "currStreamer";
-            this.currStreamer.Size = new System.Drawing.Size(0, 13);
+            this.currStreamer.Size = new System.Drawing.Size(55, 13);
             this.currStreamer.TabIndex = 2;
+            this.currStreamer.Text = "                ";
             // 
             // streamersList
             // 
@@ -87,6 +88,7 @@ namespace TwitchGrobs
             this.MaximizeBox = false;
             this.Name = "TwitchGrobsForm";
             this.Text = "TwitchGrobs";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TwitchGrobsForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
