@@ -9,3 +9,9 @@
 * Make streamers.txt file with list of streamers (it can be either links to streamers or their nicknames)
 
 * Run TwitchGrobs.exe
+
+<h2>Screenshots</h2>
+
+<p align="center">
+ <img align="center" alt="start up" src="https://media.discordapp.net/attachments/783029368364597259/825330675170672640/ss.png" />
+</p>
