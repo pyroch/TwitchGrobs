@@ -39,7 +39,7 @@ namespace TwitchGrobs
             // status
             // 
             this.status.AutoSize = true;
-            this.status.Location = new System.Drawing.Point(12, 9);
+            this.status.Location = new System.Drawing.Point(10, 9);
             this.status.Name = "status";
             this.status.Size = new System.Drawing.Size(52, 13);
             this.status.TabIndex = 0;
@@ -48,11 +48,11 @@ namespace TwitchGrobs
             // currentStreamerText
             // 
             this.currentStreamerText.AutoSize = true;
-            this.currentStreamerText.Location = new System.Drawing.Point(12, 239);
+            this.currentStreamerText.Location = new System.Drawing.Point(10, 239);
             this.currentStreamerText.Name = "currentStreamerText";
-            this.currentStreamerText.Size = new System.Drawing.Size(87, 13);
+            this.currentStreamerText.Size = new System.Drawing.Size(79, 13);
             this.currentStreamerText.TabIndex = 1;
-            this.currentStreamerText.Text = "Current streamer:";
+            this.currentStreamerText.Text = "Watching now:";
             // 
             // currStreamer
             // 

@@ -38,10 +38,7 @@ namespace TwitchGrobs
         {
             VerCheck();
             GetCustomList();
-
-            //
             FillList();
-            //
 
             var procs = Process.GetProcessesByName("chrome");
             if (procs.Length != 0)
@@ -101,9 +98,8 @@ namespace TwitchGrobs
                         var logFile = File.ReadAllLines(@".\streamers.txt");
                         for (int i = 0; i < logFile.Length; i++)
                         {
-                            logFile[i] = logFile[i].Remove(0, 22);
+                            logFile[i] = logFile[i].Replace("https://www.twitch.tv/", "");
                         }
-
                         onlineList = new List<string>(logFile);
                         onlineList = onlineList.Distinct().ToList(); //remove duplicates if there is any in file for some reason
                     }
@@ -179,7 +175,7 @@ namespace TwitchGrobs
                         var perName = percent.Substring(percent.LastIndexOf('/') + 1);
                         if (perName == onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
                         {
-                            StatusLog("Currently watching " + onlineList[currentStreamer]);
+                            //StatusLog("Currently watching " + onlineList[currentStreamer]);
 
                             Stopwatch sw = new Stopwatch();
                             sw.Start();
@@ -187,10 +183,10 @@ namespace TwitchGrobs
                             {
                                 System.Threading.Thread.Sleep(100); // reducing CPU usage
                                 percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent").GetUntilOrEmpty();
-                                StatusLog("Percentage of drop: " + percent.ToString());
+                                StatusLog("Drop progress: " + percent.ToString() + "%");
                                 if (percent == "100")
                                 {
-                                    StatusLog("100% on one of drops. Claiming and switching streamer.");
+                                    StatusLog("Claiming drop...");
                                     ClaimDrop();
                                     alreadyWatched.Add(onlineList[currentStreamer]);
                                     currentStreamer++;
@@ -282,7 +278,6 @@ namespace TwitchGrobs
                     streamersList.Items.Add(x);
                 }
             }
-            
         }
     }
 
