@@ -10,6 +10,11 @@
 
 * Run TwitchGrobs.exe
 
+<h2>Requirements:</h2>
+<b>- .NET Framework 4.7</b>
+
+<b>- English Twitch</b>
+
 <h2>Screenshots</h2>
 
 <p align="center">
