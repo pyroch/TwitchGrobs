@@ -89,13 +89,16 @@ namespace TwitchGrobs
 
         void GetCustomList()
         {
-            if (File.Exists(@".\streamers.txt"))
+            string fileName = "streamers.txt";
+            var workingDirectory = Environment.CurrentDirectory;
+            var file = $"{workingDirectory}\\{fileName}";
+            if (File.Exists(file))
             {
                 try
                 {
                     if (onlineList.Count == 0)
                     {
-                        var logFile = File.ReadAllLines(@".\streamers.txt");
+                        var logFile = File.ReadAllLines(file);
                         for (int i = 0; i < logFile.Length; i++)
                         {
                             logFile[i] = logFile[i].Replace("https://www.twitch.tv/", "");
