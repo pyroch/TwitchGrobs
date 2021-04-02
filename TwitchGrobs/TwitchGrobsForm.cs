@@ -120,8 +120,8 @@ namespace TwitchGrobs
                 MessageBox.Show("streamers.txt created, program will be closed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Environment.Exit(0);
             }
-            MessageBox.Show("There is no streamers.txt file with list of streamers. Program will be closed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            Environment.Exit(0);
+            //MessageBox.Show("There is no streamers.txt file with list of streamers. Program will be closed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //Environment.Exit(0);
         }
 
         void CustomListChecks()
