@@ -38,6 +38,8 @@ namespace TwitchGrobs
         {
             VerCheck();
             GetCustomList();
+            if (onlineList.Count == 0)
+                MessageBox.Show("The list of streamers is empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             FillList();
 
             var procs = Process.GetProcessesByName("chrome");
@@ -120,8 +122,6 @@ namespace TwitchGrobs
                 MessageBox.Show("streamers.txt created, program will be closed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Environment.Exit(0);
             }
-            //MessageBox.Show("There is no streamers.txt file with list of streamers. Program will be closed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //Environment.Exit(0);
         }
 
         void CustomListChecks()
@@ -168,9 +168,14 @@ namespace TwitchGrobs
             {
                 if (onlineList.Count == 0)
                 {
-                    StatusLog("Nothing to watch... Waiting 15 minutes.");
                     driver.Navigate().GoToUrl("https://www.twitch.tv/drops/inventory");
-                    System.Threading.Thread.Sleep(900000);
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+                    while (sw.Elapsed < TimeSpan.FromMinutes(15))
+                    {
+                        StatusLog($"Nothing to watch... Next check in: {(TimeSpan.FromMinutes(15)-sw.Elapsed).ToString("mm':'ss")}");
+                        Thread.Sleep(1000);
+                    }
                     CustomListChecks();
                 }
 
@@ -185,13 +190,11 @@ namespace TwitchGrobs
                         var perName = percent.Substring(percent.LastIndexOf('/') + 1);
                         if (perName == onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
                         {
-                            //StatusLog("Currently watching " + onlineList[currentStreamer]);
-
                             Stopwatch sw = new Stopwatch();
                             sw.Start();
                             while (sw.Elapsed < TimeSpan.FromMinutes(15)) // while cycle for 15 munutes, after that we're getting the list of streamers again. Also shows the % of drop in real time and if its 100% breaks cycle and claim the drop
                             {
-                                System.Threading.Thread.Sleep(100); // reducing CPU usage
+                                Thread.Sleep(1000); // reducing CPU usage
                                 percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent").GetUntilOrEmpty();
                                 StatusLog("Drop progress: " + percent.ToString() + "%");
                                 if (percent == "100")
@@ -209,9 +212,14 @@ namespace TwitchGrobs
                         {
                             if (!onlineList.Contains(perName, StringComparer.OrdinalIgnoreCase))
                             {
-                                StatusLog("No drops here now... Switching in a minute.");
+                                Stopwatch sw = new Stopwatch();
+                                sw.Start();
+                                while (sw.Elapsed < TimeSpan.FromMinutes(1))
+                                {
+                                    StatusLog($"No drops here now... Switching in {(TimeSpan.FromMinutes(1) - sw.Elapsed).ToString("mm':'ss")}");
+                                    Thread.Sleep(1000);
+                                }
                                 currentStreamer++;
-                                System.Threading.Thread.Sleep(60000);
                             }
                             else
                             {
@@ -228,9 +236,14 @@ namespace TwitchGrobs
                     }
                     catch
                     {
-                        StatusLog("No drops here now... Switching in a minute.");
+                        Stopwatch sw = new Stopwatch();
+                        sw.Start();
+                        while (sw.Elapsed < TimeSpan.FromMinutes(1))
+                        {
+                            StatusLog($"No drops here now... Switching in {(TimeSpan.FromMinutes(1) - sw.Elapsed).ToString("mm':'ss")}");
+                            Thread.Sleep(1000);
+                        }
                         currentStreamer++;
-                        System.Threading.Thread.Sleep(60000);
                     }
                 }
                 else if (onlineList.Count != 0)
