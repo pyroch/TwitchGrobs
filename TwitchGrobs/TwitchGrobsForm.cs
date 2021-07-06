@@ -154,7 +154,7 @@ namespace TwitchGrobs
                 catch
                 {
                     StatusLog(guy + " incorrect/offline.");
-                    MessageBox.Show("If you see incorrect/offline and it's not true, make an issue on GitHub github.com/pyroch/TwitchGrobs.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    //MessageBox.Show("If you see incorrect/offline and it's not true, make an issue on GitHub github.com/pyroch/TwitchGrobs.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     offlineList.Add(guy);
                 }
             }
