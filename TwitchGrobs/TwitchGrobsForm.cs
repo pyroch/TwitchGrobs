@@ -20,7 +20,8 @@ namespace TwitchGrobs
         const string livePath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[1]/div/div/div/a/div[2]/div/div/div/div/p";
         const string offPath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[1]/div[2]/div/div/div/div/div[2]/div[1]/div[1]/div/div[1]/div/p";
         const string profileButton = "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button";
-        const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]";
+        const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div[9]/a/div/div/p[2]";
+        const string bttvdropProgress = "/html/body/div[6]/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div/div[9]/a/div/div/p[2]";
 
         private Thread browseThread, initThread;
 
@@ -37,10 +38,6 @@ namespace TwitchGrobs
         void Init()
         {
             VerCheck();
-            GetCustomList();
-            if (onlineList.Count == 0)
-                MessageBox.Show("The list of streamers is empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            FillList();
 
             var procs = Process.GetProcessesByName("chrome");
             if (procs.Length != 0)
@@ -66,6 +63,10 @@ namespace TwitchGrobs
             driver = new ChromeDriver(chromeDriverService, options, TimeSpan.FromMinutes(5));
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 
+            GetCustomList();
+            if (onlineList.Count == 0)
+                MessageBox.Show("The list of streamers is empty.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            FillList();
             CustomListChecks();
 
             browseThread = new Thread(BrowseLogic);
@@ -118,9 +119,29 @@ namespace TwitchGrobs
             }
             else
             {
-                File.Create(@".\streamers.txt");
-                MessageBox.Show("streamers.txt created, program will be closed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Environment.Exit(0);
+                try
+                {
+                    StatusLog("Please wait, fetching streamer list from Facepunch");
+                    driver.Navigate().GoToUrl("https://twitch.facepunch.com/");
+                    onlineList = new List<string>();
+                    for (int i = 1; i <= 3; i++)
+                    {
+                        for (int j = 1; j <= 3; j++)
+                        {
+                            IWebElement elem = driver.FindElement(By.XPath($"//section[@class='section streamer-drops']//div[@class='drops-group is-3'][{i}]//a[{j}]//span[@class='streamer-name']"));
+                            if (elem != null)
+                                onlineList.Add(elem.Text);
+                        }
+                    }
+                    File.WriteAllLines(file, onlineList.ToArray());
+                }
+                catch
+                {
+                    foreach (var process in Process.GetProcessesByName("chrome"))
+                        process.Kill();
+                    MessageBox.Show($"{fileName} not found and streamer list cant fetch from Facepunch.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(0);
+                }
             }
         }
 
@@ -173,7 +194,7 @@ namespace TwitchGrobs
                     sw.Start();
                     while (sw.Elapsed < TimeSpan.FromMinutes(15))
                     {
-                        StatusLog($"Nothing to watch... Next check in: {(TimeSpan.FromMinutes(15)-sw.Elapsed).ToString("mm':'ss")}");
+                        StatusLog($"Nothing to watch... Next check in: {(TimeSpan.FromMinutes(15) - sw.Elapsed).ToString("mm':'ss")}");
                         Thread.Sleep(1000);
                     }
                     CustomListChecks();
@@ -186,7 +207,15 @@ namespace TwitchGrobs
                     try
                     {
                         driver.FindElement(By.XPath(profileButton)).Click(); // Clicking on profile button to get % of drop
-                        var percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
+                        string percent;
+                        try
+                        {
+                            percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent"); // percentage xpath that being cut from whole text. Its different on other languages, thats why english twitch is needed.
+                        }
+                        catch (NoSuchElementException)
+                        {
+                            percent = driver.FindElement(By.XPath(bttvdropProgress)).GetAttribute("textContent");
+                        }
                         var perName = percent.Substring(percent.LastIndexOf('/') + 1);
                         if (perName == onlineList[currentStreamer].ToLower()) // checks if streamer page is the same as progressing one
                         {
@@ -195,7 +224,14 @@ namespace TwitchGrobs
                             while (sw.Elapsed < TimeSpan.FromMinutes(15)) // while cycle for 15 munutes, after that we're getting the list of streamers again. Also shows the % of drop in real time and if its 100% breaks cycle and claim the drop
                             {
                                 Thread.Sleep(1000); // reducing CPU usage
-                                percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent").GetUntilOrEmpty();
+                                try
+                                {
+                                    percent = driver.FindElement(By.XPath(dropProgress)).GetAttribute("textContent").GetUntilOrEmpty();
+                                }
+                                catch (NoSuchElementException)
+                                {
+                                    percent = driver.FindElement(By.XPath(bttvdropProgress)).GetAttribute("textContent");
+                                }
                                 StatusLog("Drop progress: " + percent.ToString() + "%");
                                 if (percent == "100")
                                 {
@@ -251,19 +287,19 @@ namespace TwitchGrobs
                     currentStreamer = 0;
                     CustomListChecks();
                 }
-                System.Threading.Thread.Sleep(10); // reducing CPU usage
+                Thread.Sleep(10); // reducing CPU usage
             }
         }
 
         void ClaimDrop()
         {
             driver.Navigate().GoToUrl("https://www.twitch.tv/drops/inventory");
-            System.Threading.Thread.Sleep(3000);
+            Thread.Sleep(3000);
             var buttons = driver.FindElements(By.XPath("//button[@data-test-selector ='DropsCampaignInProgressRewardPresentation-claim-button']"));
             foreach (var button in buttons)
             {
                 button.Click();
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
             }
         }
 
@@ -292,7 +328,7 @@ namespace TwitchGrobs
 
         void FillList()
         {
-            if(InvokeRequired)
+            if (InvokeRequired)
             {
                 Invoke((Action)FillList);
             }

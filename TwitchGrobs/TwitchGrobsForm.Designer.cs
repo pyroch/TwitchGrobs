@@ -50,14 +50,14 @@ namespace TwitchGrobs
             this.currentStreamerText.AutoSize = true;
             this.currentStreamerText.Location = new System.Drawing.Point(10, 239);
             this.currentStreamerText.Name = "currentStreamerText";
-            this.currentStreamerText.Size = new System.Drawing.Size(79, 13);
+            this.currentStreamerText.Size = new System.Drawing.Size(97, 13);
             this.currentStreamerText.TabIndex = 1;
-            this.currentStreamerText.Text = "Watching now:";
+            this.currentStreamerText.Text = "Currently watching:";
             // 
             // currStreamer
             // 
             this.currStreamer.AutoSize = true;
-            this.currStreamer.Location = new System.Drawing.Point(95, 239);
+            this.currStreamer.Location = new System.Drawing.Point(105, 239);
             this.currStreamer.Name = "currStreamer";
             this.currStreamer.Size = new System.Drawing.Size(55, 13);
             this.currStreamer.TabIndex = 2;
