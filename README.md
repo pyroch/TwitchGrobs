@@ -11,6 +11,8 @@
 * Run TwitchGrobs.exe
 
 <h2>Requirements:</h2>
+<b>- Latest version of Google Chrome </b>
+
 <b>- .NET Framework 4.7</b>
 
 <b>- English Twitch</b>
