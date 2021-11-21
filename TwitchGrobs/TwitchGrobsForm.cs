@@ -201,7 +201,7 @@ namespace TwitchGrobs
                                 {
                                     StatusLog("Claiming drop...");
                                     ClaimDrop();
-                                    alreadyWatched.Add(onlineList[currentStreamer]);
+                                    //alreadyWatched.Add(onlineList[currentStreamer]);
                                     currentStreamer++;
                                     break;
                                 }
