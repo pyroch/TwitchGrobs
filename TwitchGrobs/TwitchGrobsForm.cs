@@ -17,8 +17,6 @@ namespace TwitchGrobs
         private List<string> onlineList = new List<string>();
         private List<string> alreadyWatched = new List<string>();
 
-        const string livePath = "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[3]/div/div[2]/div/div[1]/div/p";
-        const string offPath = "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[1]/div[1]/div[1]/div[2]/div/div/div/div/div[2]/div[1]/div[1]/div/div[1]/div/p";
         const string profileButton = "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button";
         const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]";
 
@@ -66,6 +64,7 @@ namespace TwitchGrobs
             driver = new ChromeDriver(chromeDriverService, options, TimeSpan.FromMinutes(5));
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
 
+            Thread.Sleep(3000);
             CustomListChecks();
 
             browseThread = new Thread(BrowseLogic);
@@ -137,26 +136,16 @@ namespace TwitchGrobs
             foreach (var guy in onlineList)
             {
                 driver.Navigate().GoToUrl("https://twitch.tv/" + guy);
-                try
+                var status = driver.PageSource.ToString();
+                if(status.Contains("isLiveBroadcast"))
                 {
-                    var status = driver.FindElement(By.XPath(livePath + " | " + offPath));
-                    if (status.Displayed)
-                    {
-                        if (status.Text == "OFFLINE" || status.Text == "HOSTING")
-                        {
-                            StatusLog(guy + " is Offline.");
-                            offlineList.Add(guy);
-                        }
-                        if (status.Text == "LIVE")
-                            StatusLog(guy + " is Live.");
-                    }
+                    StatusLog(guy + " is Live");
                 }
-                catch
+                else
                 {
-                    StatusLog(guy + " incorrect/offline.");
-                    //MessageBox.Show("If you see incorrect/offline and it's not true, make an issue on GitHub github.com/pyroch/TwitchGrobs.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    StatusLog(guy + "is Offline");
                     offlineList.Add(guy);
-                }
+                }     
             }
             onlineList.RemoveAll(item => offlineList.Contains(item)); // removing all items from main list that contained in offlineList
         }
