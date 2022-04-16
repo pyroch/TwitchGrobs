@@ -18,7 +18,7 @@ namespace TwitchGrobs
         private List<string> alreadyWatched = new List<string>();
 
         const string profileButton = "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[6]/div/div/div/div/button";
-        const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[9]/a/div/div[2]/p[2]";
+        const string dropProgress = "/html/body/div[5]/div/div/div/div/div/div/div/div/div/div/div/div[3]/div/div/div[1]/div[10]/a/div/div[2]/p[2]";
 
         private Thread browseThread, initThread;
 
